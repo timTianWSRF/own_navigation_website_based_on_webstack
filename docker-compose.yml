@@ -1,0 +1,60 @@
+version: "3"
+
+services:
+    web:
+      build:
+        context: .
+        args:
+          - no-cache
+      ports:
+        - "8022:8222"
+      container_name: own_navigation_website_admin
+      command: python manage.py runserver 0.0.0.0:8222
+      restart: always
+      volumes:
+        - /etc/navigation_website_admin
+      networks:
+        - lingjianhua_network
+      depends_on:
+        - mysql
+
+    navigation_website:
+        image: arvon2014/webstack-laravel:v1.2.1
+        container_name: own_navigation_website
+        restart: always
+        ports:
+            - "8082:8000"
+        volumes:
+            - /etc/navigation_website
+            - /opt/navi/public/uploads/images
+        networks:
+            -  lingjianhua_network
+        environment:
+            DB_HOST: 124.223.5.159
+            DB_PORT: 33066
+            DB_PASSWORD: 56167823
+        depends_on:
+            - mysql
+
+    mysql:
+        image: mysql:5.7
+        container_name: navigation_website_mysql
+        restart: always
+        environment:
+            MYSQL_ROOT_PASSWORD: 56167823
+            MYSQL_ALLOW_WMPTY_PASSWORD: 'no'
+            MYSQL_DATABASE: 'homestead'
+            MYSQL_USER: 'homestead'
+            MYSQL_PASSWORD: 56167823
+        ports:
+            - "33066:3306"
+        volumes:
+            - /app/mysql/db:/var/libmysql5.7
+            - /app/mysql/conf/my.cnf:/etc/mysql5.7/my.cnf
+            - /app/mysql/init:/mysql5.7/docker-entrypoint-initdb.d
+        networks:
+            -  lingjianhua_network
+
+
+networks:
+    lingjianhua_network:
